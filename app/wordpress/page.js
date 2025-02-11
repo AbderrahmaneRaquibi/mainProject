@@ -1,11 +1,14 @@
-import Link from "next/link";
+'use client';
+
+import useAuthCheck from '/hooks/useAuthCheck';
 import Folders from "../components/folders";
 
 export default function Home(){
+            const { user, loading } = useAuthCheck('/wordpress'); 
+    
     return(
         <div>
-        <Link href={'/'}>test</Link>
-        <Folders FoldersPath={'C:/xampp/htdocs/wordpress'} />
+        <Folders FoldersPath={'/opt/lampp/htdocs/wordpress'} />
         </div>
     );
 }

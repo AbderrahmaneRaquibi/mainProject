@@ -1,76 +1,62 @@
-'use client';
-import { useEffect, useState } from "react";
+"use client";
+import { useEffect, useState } from 'react';
+import useAuthCheck from '/hooks/useAuthCheck';
+import toast from "react-hot-toast";
+import { FaCheckCircle } from "react-icons/fa";
+import AuthorisePage from './components/authorise';
+import Register from './components/register';
 
 export default function Home() {
-  const [users, setUsers] = useState([]);
+  const { user, loading } = useAuthCheck(); // Removed '/' as requiredPermission
+  const [loadingToastId, setLoadingToastId] = useState(null);
+
+  const showToast = (message, icon, duration) => {
+    toast.custom(
+      (t) => (
+        <div
+          className={`flex items-center p-4 rounded-lg bg-gray-900/90 shadow-lg shadow-blue-500/20 border border-gray-700 transition-all duration-300 
+          ${t.visible ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
+        >
+          {icon}
+          <span className="text-white ml-3">{message}</span>
+        </div>
+      ),
+      { position: "top-right", duration: duration }
+    );
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch("/api/users");
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        const users = await response.json();
-        setUsers(users);
-      } catch (error) {
-        console.error("Fetch error:", error);
+    if (!loading && user) {
+      showToast(
+        `Welcome back, ${user.username}!`,
+        <FaCheckCircle className="text-green-500" size={20} />,
+        2000
+      );
+
+      if (loadingToastId) {
+        toast.dismiss(loadingToastId);
       }
-    };
-    fetchData();
-  }, []);
-
-  // Handle edit user
-  const handleEdit = (userId) => {
-    console.log(`Edit user with ID: ${userId}`);
-    // Add logic for editing the user
-  };
-
-  // Handle delete user
-  const handleDelete = (userId) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this user?');
-    if (confirmDelete) {
-      console.log(`Delete user with ID: ${userId}`);
-      // Add logic for deleting the user
     }
-  };
+  }, [loading, user, loadingToastId]);
 
   return (
-    <div className="overflow-x-auto w-[50%]">
-      <table className="w-full bg-white border border-gray-300 shadow-md rounded-lg">
-        <thead>
-          <tr className="bg-gray-900 text-white">
-            <th className="px-4 py-2">ID</th>
-            <th className="px-4 py-2">Username</th>
-            <th className="px-4 py-2">Role</th>
-            {/* <th className="px-4 py-2">Actions</th> */}
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id} className="border-b text-center">
-              <td className="px-4 py-2 text-black">{user.id}</td>
-              <td className="px-4 py-2 text-black">{user.username}</td>
-              <td className="px-4 py-2 text-black">{user.role}</td>
-              {/* <td className="px-4 py-2">
-                <button
-                  className="text-blue-500 hover:text-blue-700"
-                  onClick={() => handleEdit(user.id)}
-                >
-                  Edit
-                </button>
-                {' | '}
-                <button
-                  className="text-red-500 hover:text-red-700"
-                  onClick={() => handleDelete(user.id)}
-                >
-                  Delete
-                </button>
-              </td> */}
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <div className="flex flex-col space-y-12">
+      {/* Admin Controls */}
+      <div className='flex space-x-3'>
+        {user?.role === "admin" && (
+          <div id="auth"><AuthorisePage /></div>
+        )}
+        {(user?.role === "admin" || user?.permissions?.includes("#register")) && (
+          <div id="register"><Register /></div>
+        )}
+      </div>
+
+      {/* Display Username if authorized */}
+      <div>
+        {(user?.role === "admin" || user?.permissions?.includes("#register")) && (
+          <div>{user?.username}</div>
+        )}
+      </div>
     </div>
   );
 }

@@ -1,11 +1,14 @@
-import Link from "next/link";
+'use client';
+
+import useAuthCheck from '/hooks/useAuthCheck';
 import Folders from "../components/folders";
 
 export default function Home(){
+        const { user, loading } = useAuthCheck('/nextjs'); 
     return(
         <div>
-        <Link href={'/'}>test</Link>
-        <Folders FoldersPath={'C:/Users/Kival/Desktop/NextJsProjects'} />
+        <Folders FoldersPath={'/home/abdoraquibi/Desktop/NextJS'} />
+        <Folders FoldersPath={'/home/abdoraquibi/Desktop/main'} />
         </div>
     );
 }

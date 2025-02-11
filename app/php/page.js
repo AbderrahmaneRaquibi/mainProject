@@ -1,11 +1,13 @@
-import Link from "next/link";
+'use client';
+
+import useAuthCheck from '/hooks/useAuthCheck';
 import Folders from "../components/folders";
 
 export default function Home(){
+    const { user, loading } = useAuthCheck('/php'); // Check for /php access
     return(
         <div>
-        <Link href={'/'}>test</Link>
-        <Folders FoldersPath={'C:/xampp/htdocs/php'} />
+        <Folders FoldersPath={'/opt/lampp/htdocs/php'} />
         </div>
     );
 }
